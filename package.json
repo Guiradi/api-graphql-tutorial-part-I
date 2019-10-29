@@ -1,0 +1,19 @@
+{
+  "name": "tutorial-api",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/Guiradi/app-vendas-api.git",
+  "author": "Guilherme Ponsoni Ferreira <guilherme.ferreira@ezdevs.com.br>",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.17.1",
+    "express-graphql": "^0.9.0",
+    "graphql": "^14.5.8"
+  },
+  "devDependencies": {
+    "nodemon": "^1.19.4"
+  },
+  "scripts": {
+    "start": "nodemon server.js"
+  }
+}
