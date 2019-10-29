@@ -1,7 +1,7 @@
 {
   "name": "tutorial-api",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "server.js",
   "repository": "https://github.com/Guiradi/app-vendas-api.git",
   "author": "Guilherme Ponsoni Ferreira <guilherme.ferreira@ezdevs.com.br>",
   "license": "MIT",
