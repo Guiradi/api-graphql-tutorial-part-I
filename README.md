@@ -2,7 +2,7 @@
 
 ## Introdução:
 
-Olá novamente, caros amigos devs, como estamos?
+Olá novamente, caros devs e devas de todo Brasil, como estamos?
 
 Este artigo é a continuação do tutorial de como construir uma Api GraphQL com NodeJS e ExpressJS, a qual você pode conferir na branch master desse repo! Então, se você ainda não conferiu, vale a pena dar aquela lida e continuar a partir daqui.
 
@@ -103,10 +103,53 @@ Nesse momento, sua cabeça já deve estar imaginando todas as infinitas possibil
 
 ## Passando parâmetros
 
+Para a maior parte de seus problemas, é possível que seja necessário enviar algumas informações para sua API te fornecer uma resposta mais precisa em relação a uma situação que você tem. Parece confuso agora, mas em breve quando estivermos construindo uma aplicação mais complexa.
 
+Por enquanto, utilizarei um exemplo simples para te mostrar como enviar parâmetros para seus endpoints e receber, a partir deles, respostas coerentes.
+
+Suponhamos que você queria rolar dados não só 3 vezes, mas quantas n vezes você quiser. Além disso, não nos restringiremos a dados de 6 lados, mas a dados de quantos n lados quisermos. Assim, teremos que criar uma nova query e passar dois parâmetros para ela: o número de dados jogados e o número de lados dos dados.
+
+ - Em seu arquivo schemas.js, adicione um novo endpoint em seu type Query:
+
+              rollDices(numDices: Int!, numSides: Int!): [Int]
+
+Repare que precisamos definir o tipo de cada variável passada como parâmetro e, além disso, definir se essas variáveis são opcionais ou obrigatórias colocando ou não o !.
+
+ - Em seguida, mapearemos a query com um novo resolver em resolvers.js:
+
+              rollDices: function (args) {
+                     const resp = [];
+
+                     for (let i = 0; i < args.numDices; i++) {
+                     resp.push(1 + Math.floor(Math.random() * args.numSides))
+                     }
+
+                     return resp;
+              }
+
+E, novamente, está pronto! Para enviar os parâmetros dentro da query, faça questão de utilizar exatamente o mesmo nome que usou para mapear as variáveis. 
+
+ - Então, ao enviar a nova query, escreva no playground:
+
+              {
+                     rollDices(numDices: 3, numSides: 6)
+              }
+
+Note que pulei a etapa de iniciar o servidor porque caso ele já esteja rodando, ele atualizou automaticamente devido ao nodemon. Mágico não é mesmo!?
+
+Pronto! Agora você já sabe enviar parâmetros para seus resolvers. Sinta-se livre para criar quais funções você quiser, com quaisquer parâmetros que queira. É muito importante que você treine bastante.
+
+## Próximos passos
+
+Se você chegou até aqui, já sabe iniciar uma Api em NodeJS e ExpressJS em um arquivo server.js. Também sabe agilizar o processo de produção da sua aplicação com nodemon. E hoje, aprendeu a criar queries e passar parâmetros para essas queries. Então, aproveite para inventar suas próprias funções e ir muito além de rolar dados!
+
+### O que falta agora?
+
+Bom, em nossos próximos passos, começaremos efetivamente a criar nosso CRUD. Faremos criações de registros, edições, deleções e os listaremos. Entenderemos a diferença entre queries e resolvers (SPOILER ALERT: não há! Mas por convenção e organização, diferenciaremos no código) e criaremos o esqueleto de uma aplicação de verdade. 
+
+O que acha de continuar acompanhando a série de artigos desse tutorial e aprender a construir a Api de um Blog? Então continue lendo e não deixe de participar deixando seus comentários e dúvidas!
 
 ## Referências:
 
- - https://graphql.org/code/#javascript
- - https://graphql.org/graphql-js/running-an-express-graphql-server/
- - https://yarnpkg.com/en/docs
+ - https://graphql.org/graphql-js/basic-types/
+ - https://graphql.org/graphql-js/passing-arguments/

@@ -3,6 +3,8 @@ module.exports = `
         hello: String,
         randomNumber: Float!,
         rollThreeDice: [Int],
-        isSaturday: Boolean!
+        isSaturday: Boolean!,
+
+        rollDices(numDices: Int!, numSides: Int!): [Int]
     }
 `
