@@ -59,3 +59,32 @@ Exatamente! Para mostrarmos posts, utilizaremos o type Post, mas ele não foi de
 Não esqueça de salvar todo seu progresso até aqui, tanto no editor quanto no Github!
 
 Pronto! Tudo certo com os schemas, então é hora de construirmos os resolvers! Para construir algo simples, ainda não integraremos essa API a nenhum banco de dados, portanto produziremos dados falsos salvos na própria aplicação, construindo uma variável que receberá e mostrará esses dados no nosso resolver. Bora ver como fica?
+
+### Buscando dados em seu resolver
+
+ - Reconstrua seu resolver.js para:
+
+       const postList = [
+              {
+                     id: 1,
+                     title: "Meu primeiro blog post!",
+                     content: "Olá leitores assíduos do meu blog, este é meu primeiro blog post e nele eu só desejo dar-lhes as boas vindas!",
+                     author: "Guilherme Ferreira",
+                     created_at: new Date('2020-02-07T09:35').toDateString()
+              },
+              {
+                     id: 2,
+                     title: "Meu segundo blog post!",
+                     content: "Olá leitores assíduos do meu blog, este é meu segundo blog post e nele eu queria dizer como estou contente hoje!",
+                     author: "Guilherme Ferreira",
+                     created_at: new Date('2020-02-10T08:00').toDateString()
+              }
+       ]
+
+       module.exports = {
+              post: ({ id }) => postList.find(post => post.id === +id),
+              posts: () => postList
+       }
+
+Podemos ver que criamos uma variável postList e nela incluimos dois objetos exatamente como definimos o nosso modelo de Post. Além disso, criamos dois resolvers, ou seja, funções com os mesmos nomes que nossos schemas possuem. 
+No caso, post recebe uma variável id que retornará o post identificado pelo id pedido na query, enquanto posts não precisa receber nenhuma variável e retornará a lista completa de blog posts!
