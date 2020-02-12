@@ -64,27 +64,67 @@ Pronto! Tudo certo com os schemas, então é hora de construirmos os resolvers! 
 
  - Reconstrua seu resolver.js para:
 
-       const postList = [
-              {
-                     id: 1,
-                     title: "Meu primeiro blog post!",
-                     content: "Olá leitores assíduos do meu blog, este é meu primeiro blog post e nele eu só desejo dar-lhes as boas vindas!",
-                     author: "Guilherme Ferreira",
-                     created_at: new Date('2020-02-07T09:35').toDateString()
-              },
-              {
-                     id: 2,
-                     title: "Meu segundo blog post!",
-                     content: "Olá leitores assíduos do meu blog, este é meu segundo blog post e nele eu queria dizer como estou contente hoje!",
-                     author: "Guilherme Ferreira",
-                     created_at: new Date('2020-02-10T08:00').toDateString()
-              }
-       ]
+              const postList = [
+                     {
+                            id: 1,
+                            title: "Meu primeiro blog post!",
+                            content: "Olá leitores assíduos do meu blog, este é meu primeiro blog post e nele eu só desejo dar-lhes as boas vindas!",
+                            author: "Guilherme Ferreira",
+                            created_at: new Date('2020-02-07T09:35').toDateString()
+                     },
+                     {
+                            id: 2,
+                            title: "Meu segundo blog post!",
+                            content: "Olá leitores assíduos do meu blog, este é meu segundo blog post e nele eu queria dizer como estou contente hoje!",
+                            author: "Guilherme Ferreira",
+                            created_at: new Date('2020-02-10T08:00').toDateString()
+                     }
+              ]
 
-       module.exports = {
-              post: ({ id }) => postList.find(post => post.id === +id),
-              posts: () => postList
-       }
+              module.exports = {
+                     post: ({ id }) => postList.find(post => post.id === +id),
+                     posts: () => postList
+              }
 
 Podemos ver que criamos uma variável postList e nela incluimos dois objetos exatamente como definimos o nosso modelo de Post. Além disso, criamos dois resolvers, ou seja, funções com os mesmos nomes que nossos schemas possuem. 
 No caso, post recebe uma variável id que retornará o post identificado pelo id pedido na query, enquanto posts não precisa receber nenhuma variável e retornará a lista completa de blog posts!
+
+### Mas onde está a mágica do GraphQL nisso tudo?
+
+Pois é, até agora não fizemos nada que uma API Rest não faria. Mas a mágica do GraphQL começa na hora de buscar esses dados! 
+Nem sempre precisamos saber todas as informações de um blog post em qualquer página! Pode ser que você queira, em uma página, listar apenas os nomes dos posts acompanhados do nome do autor deles e isso é perfeitamente entendível tratando-se de visualizações mobile, por exemplo. É aí que o GraphQL cuida de tudo para nós, você busca o que você pede!
+
+ - Rode seu server abrindo um terminal, navegando até o diretório da API e digitando:
+
+              yarn start
+
+ - ou (se optou utilizar o npm)
+
+              npm start
+
+Não se esqueça de conferir se os pacotes estão instalados caso tenha acabado de clonar ou forkear o repositório ( com yarn i ou npm i).
+
+ - Em seguida, abra seu navegador em http://localhost:3333/graphql e teste:
+
+              {
+                     posts {
+                            id
+                            title
+                            author
+                     }
+              }
+
+Então verá a magia do GraphQL acontecendo! Lindo não?
+ - Aproveite também para usar um dos ids mostrados em:
+
+              {
+                     post(id: 1) {
+                            id
+                            title
+                            content
+                            author
+                            created_at
+                     }
+              }
+
+Pois é possível que seu usuário clique em um dos posts para ver o seu conteúdo e mais informações sobre ele! Mas se quiser mostrar só o conteúdo, ou só a data de criação, tudo é possível! Brinque muito!
