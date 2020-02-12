@@ -1,10 +1,14 @@
 module.exports = `
-    type Query {
-        hello: String,
-        randomNumber: Float!,
-        rollThreeDice: [Int],
-        isSaturday: Boolean!,
+    type Post {
+        id: ID!
+        title: String!
+        content: String
+        author: String
+        created_at: String
+    }
 
-        rollDices(numDices: Int!, numSides: Int!): [Int]
+    type Query {
+        post(id: ID!): Post!
+        posts: [Post!]!
     }
 `
