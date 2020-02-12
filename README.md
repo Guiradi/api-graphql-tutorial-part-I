@@ -145,7 +145,7 @@ Se você chegou até aqui, já sabe iniciar uma Api em NodeJS e ExpressJS em um 
 
 ### O que falta agora?
 
-Bom, em nossos próximos passos, começaremos efetivamente a criar nosso CRUD. Faremos criações de registros, edições, deleções e os listaremos. Entenderemos a diferença entre queries e resolvers (SPOILER ALERT: não há! Mas por convenção e organização, diferenciaremos no código) e criaremos o esqueleto de uma aplicação de verdade. 
+Bom, em nossos próximos passos, começaremos efetivamente a criar nosso CRUD. Faremos criações de registros, edições, deleções e os listaremos. Entenderemos a diferença entre queries e mutations (SPOILER ALERT: não há! Mas por convenção e organização, diferenciaremos no código) e criaremos o esqueleto de uma aplicação de verdade. 
 
 O que acha de continuar acompanhando a série de artigos desse tutorial e aprender a construir a Api de um Blog? Então continue lendo e não deixe de participar deixando seus comentários e dúvidas!
 
