@@ -38,11 +38,11 @@ Em seguida, vamos preparar nosso CRUD nos schemas e, para isso, vamos utilizar c
                      }
               `
 
-### Certo, lembro de termos estudado String, Int, Float e Boolean, mas ID????
+## Certo, lembro de termos estudado String, Int, Float e Boolean, mas ID????
  
 Muito bem, o GraphQL entende que por ID estamos utilizando um identificador para aquele registro e, por isso, aceita números, símbolos e palavras nesse type.
 
-### Ok, o ID está na documentação, mas type Post?????
+## Ok, o ID está na documentação, mas type Post?????
 
 Exatamente! Para mostrarmos posts, utilizaremos o type Post, mas ele não foi definido em lugar algum, então o GraphQL não saberá quem ele é até o apresentarmos!
 
@@ -67,16 +67,16 @@ Pronto! Tudo certo com os schemas, então é hora de construirmos os resolvers! 
               const postList = [
                      {
                             id: 1,
-                            title: "Meu primeiro blog post!",
-                            content: "Olá leitores assíduos do meu blog, este é meu primeiro blog post e nele eu só desejo dar-lhes as boas vindas!",
-                            author: "Guilherme Ferreira",
+                            title: 'Meu primeiro blog post!',
+                            content: 'Olá leitores assíduos do meu blog, este é meu primeiro blog post e nele eu só desejo dar-lhes as boas vindas!',
+                            author: 'Guilherme Ferreira',
                             created_at: new Date('2020-02-07T09:35').toDateString()
                      },
                      {
                             id: 2,
-                            title: "Meu segundo blog post!",
-                            content: "Olá leitores assíduos do meu blog, este é meu segundo blog post e nele eu queria dizer como estou contente hoje!",
-                            author: "Guilherme Ferreira",
+                            title: 'Meu segundo blog post!',
+                            content: 'Olá leitores assíduos do meu blog, este é meu segundo blog post e nele eu queria dizer como estou contente hoje!',
+                            author: 'Guilherme Ferreira',
                             created_at: new Date('2020-02-10T08:00').toDateString()
                      }
               ]
@@ -89,7 +89,7 @@ Pronto! Tudo certo com os schemas, então é hora de construirmos os resolvers! 
 Podemos ver que criamos uma variável postList e nela incluimos dois objetos exatamente como definimos o nosso modelo de Post. Além disso, criamos dois resolvers, ou seja, funções com os mesmos nomes que nossos schemas possuem. 
 No caso, post recebe uma variável id que retornará o post identificado pelo id pedido na query, enquanto posts não precisa receber nenhuma variável e retornará a lista completa de blog posts!
 
-### Mas onde está a mágica do GraphQL nisso tudo?
+## Mas onde está a mágica do GraphQL nisso tudo?
 
 Pois é, até agora não fizemos nada que uma API Rest não faria. Mas a mágica do GraphQL começa na hora de buscar esses dados! 
 Nem sempre precisamos saber todas as informações de um blog post em qualquer página! Pode ser que você queira, em uma página, listar apenas os nomes dos posts acompanhados do nome do autor deles e isso é perfeitamente entendível tratando-se de visualizações mobile, por exemplo. É aí que o GraphQL cuida de tudo para nós, você busca o que você pede!
@@ -128,3 +128,65 @@ Então verá a magia do GraphQL acontecendo! Lindo não?
               }
 
 Pois é possível que seu usuário clique em um dos posts para ver o seu conteúdo e mais informações sobre ele! Mas se quiser mostrar só o conteúdo, ou só a data de criação, tudo é possível! Brinque muito!
+
+## Empolgados também? Então vamos terminar esse CRUD!
+
+Agora que criamos as queries de busca, vamos começar as criações, edições e deleções! E, para isso, como falei anteriormente, defineremos os schemas de manipulações de dados nas mutations. Além disso, facilitaremos a leitura desses schemas criando os types Input do GraphQL.
+Inputs são na verdade types utilizados como Models para nossos parâmetros enviados às mutations. Portanto, antes de escrevermos algo do tipo:
+
+              createPost(title: String!, content: String, author: String): Post
+              updatePost(id: ID!, title: String!, content: String, author: String): Boolean
+
+Podemos definir um input que contenha os campos em comum em ambas as mutations, para facilitar a escrita e leitura do código.
+
+ - Dessa forma, nosso arquivo schemas.js será:
+
+              module.exports = `
+                     type Post {
+                            id: ID!
+                            title: String!
+                            content: String
+                            author: String
+                            created_at: String
+                     }
+
+                     input PostInput {
+                            id: ID
+                            title: String
+                            content: String
+                            author: String
+                     }
+
+                     type Query {
+                            post(id: ID!): Post!
+                            posts: [Post!]!
+                     }
+
+                     type Mutation {
+                            createPost(input: PostInput!): Post!
+                            updatePost(input: PostInput!): Post!
+                            deletePost(id: ID!): Boolean
+                     }
+              `
+
+Lembre-se que se algo não estiver muito claro ou muitas dúvidas surgirem em algum momento e não forem esclarecidas no texto, você sempre pode deixar um comentário ou enviar um e-mail para guilherme.ferreira@ezdevs.tech
+
+ - Com os schemas prontos, vamos montar nossos resolvers do CRUD:
+ 
+              createPost: ({ input }) => {
+                     const newPost = { ...input, id: postList.length, created_at: Date.now().toDateString() };
+                     postList.push(newPost);
+                     return newPost;
+              },
+
+              updatePost: ({ input }) => {
+                     const { id: postId, ...newPostData } = input
+                     const index = postList.map(({ id }) => id).indexOf(+postId);
+                     postList[index] = { ...postList[index], ...newPostData };
+                     return postList[index];
+              },
+
+              deletePost: ({ id: postId }) => {
+                     const postList = postList.filter(({ id }) => id !== +postId);
+                     return true;
+              }
