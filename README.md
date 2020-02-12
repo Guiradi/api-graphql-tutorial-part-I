@@ -1,170 +1,155 @@
-# Como construir uma Api GraphQL com NodeJS
+# Como construir uma Api GraphQL com NodeJS parte 2
 
 ## Introdução:
-Construir um sistema pode ser mais complexo do que parece ser. Afinal, você tem usuários para gerenciar, dados para salvar, ações para realizar e respostas para entregar, estou certo?
-Bem, se pelo menos um desses problemas que elenquei está atormentando você, então veio para o tutorial correto!
 
-Aqui procuro facilitar para você uma receitinha básica para iniciar qualquer projeto que seguirá a mesma stack de desenvolvimento. Destacando bastante para facilitar suas buscas futuras, então favorita esse link para não perder a receitinha!
+Olá novamente, caros devs e devas de todo Brasil, como estamos?
 
-PS(aos veteranos de código): Peço licença para os programadores mais experientes para fugir um pouco de algumas boas práticas de código, pois o intuito deste tutorial é iniciar e auxiliar nossos companheiros menos experientes no maravilhoso mundo de GraphQL! Caso algo o incomode, deixe um comentário com dicas e sugestões (nós adoramos!).
+Este artigo é a continuação do tutorial de como construir uma Api GraphQL com NodeJS e ExpressJS, a qual você pode conferir na branch master desse repo! Então, se você ainda não conferiu, vale a pena dar aquela lida e continuar a partir daqui.
 
-### Mas, por que GraphQL?
-Ainda está confuso sobre o que é esse conceito e por que colocá-lo em sua aplicação? Confira o vídeo de Gabriel Cardoso, dev da ez.devs, no canal da empresa: https://www.youtube.com/watch?v=0MfMYPvimYo&trk= 
+Agora, já coloca o café na xícara, abra um terminal e seu editor de códigos favoritos no diretório que estávamos trabalhando (qualquer coisa é só clonar a branch master do repo!) e bora codar =D
 
-### E por onde eu começo?
-Para dar os primeiros passos com a API, é importante ter bastante conhecimento nas mais recentes versões de javascript (ou ECMAScript, chique demais), instalar o NodeJS em sua máquina e em seguida, instalar gerenciador de dependências muito rápido, confiável e seguro (e eles se asseguram disso firmemente), o YARN!
+## Hello World, ok. E agora?
 
- - Com o NodeJS (https://nodejs.org/) instalado em sua máquina, digite em um terminal:
-       
-              npm i yarn -g
+Começaremos essa próxima parte do artigo entendendo melhor o funcionamento do GraphQL na prática. E isso implica na construção de novas queries e novos resolvers para essas queries. Assim, primeiramente vamos estudar sobre os tipos básicos das variáveis que retornarão das queries, que são: String, Int, Float, Boolean e ID, suportados pela linguagem de schemas do GraphQL.
 
-Caso esteja com dúvidas ou queira saber mais sobre o pacote, leia a documentação em https://yarnpkg.com/.
+### Início da receitinha parte 2
+ - Após navegar até o diretório do nosso projeto em seu terminal, digite:
 
-Caso prefira fazer todo o projeto utilizando o npm, não se preocupe, coloquei os dois scripts na receitinha, disponha!
+              mkdir src
 
-## Ready, set, GO
+       ou, se estiver usando windows e não estiver no PowerShell
 
-Após a instalação dos requisitos, leia Node e yarn, o primeiro passo para construir sua API em NodeJS será iniciar um projeto NodeJS (UAU).
+              md src
 
-### Mas como eu faço isso?
+       mas eu recomendo usar o PowerShell!
+ - Em seguida:
 
-Parece até bobo de tão simples, mas toda vez que eu inicio um projeto novo eu percorro uns 3 tutoriais até me lembrar como eu realmente fiz isso, então anota a receitinha:
- - Escolha/Crie um diretório em seu computador onde trabalharemos com a API.
- - Abra um terminal de sua preferência e navegue até o diretório escolhido.
- - (Opcional, mas recomendado) Inicie o Git nesse repositório para trabalhar com versionamento em seu código, é importante manter suas versões caso se arrependa ou até queira observar o que você foi alterando conforme foi adicionando features.
- - Digite no terminal:
- 
-        yarn init -y
- - ou
- 
-        npm init -y (caso não tenha seguido meus passos anteriores!)
+              touch src/schemas.js
 
-### Pronto! Muito simples, não é mesmo? Porém... deu certo?
+ - Agora, em seu editor de textos favorito, abra o arquivo que acabou de criar e digite:
 
-Verifique se no diretório criado agora existe um arquivo package.json e abra-o.
-Em seguida, observe que nesse arquivo contém informações sobre seu projeto, edite caso queira incluir informações adicionais de seu interesse no projeto.
-
-Tudo certo? Então, a partir de agora, instalaremos alguns pacotes que nos ajudarão com alguns códigos prontos para facilitar nosso trabalho durante a construção da API.
- - Para isso, digite no terminal:
- 
-        yarn add express graphql express-graphql --save
- - ou
-    
-        npm install express graphql express-graphql --save
-
-Esse comando incluirá em seu projeto um diretório denominado node_modules, que possuirá os pacotes que acabamos de instalar.
-
-### Não esqueça que é sempre bom se preocupar com sua agilidade
-
-Então, para que seja possível um desenvolvimento mais fluido, sem precisar ficar reiniciando o seu servidor toda vez que alterar o código, instalaremos um outro pacote chamado Nodemon:
- - Digite no terminal:
- 
-        yarn add nodemon -D
- - ou
- 
-        npm install --save-dev nodemon
-
-Então, no arquivo package.json, você incluirá a seguinte linha:
- - Inclua no arquivo package.json como uma nova prop:
-
-        "scripts": {
-            "start": "nodemon server.js"
-        }
-
-### Versione muito, mas tome cuidado
-
-Para que os pacotes e as suas variáveis de ambiente não subam para o Git, criaremos no projeto um arquivo .gitignore e incluiremos essas linhas:
- - Digite no terminal (ou crie um arquivo .gitignore e abra-o em um editor):
- 
-        touch .gitignore
-        
- - Em seguida, inclua as linhas:
- 
-        node_modules
-        .env
-        
- - Salve-o!
-
-### É hora de codar!
-
-Agora, para desbravar nossa primeira aventura no mundo das APIs GraphQL, iniciaremos com algo simples, que possuirá um único arquivo, que aqui chamarei de server.js (esse nome é padrão em diversas arquiteturas, mas você poderá dar o nome que quiser para ele!). Repare que no script que incluimos em package.json diz para o nodemon abrir esse arquivo, então caso você vá utilizar outro nome, lembre-se de alterar no arquivo de pacotes também!
-
-Para o nosso próximo passo, abra o projeto em seu editor de códigos favoritos e bora codar :)
-
-#### Imports
- - Comecemos importando o express, o express-graphql (que servirá nossa aplicação) e o construtor de schemas do graphQL:
-
-              const express = require('express');
-              const graphqlHTTP = require('express-graphql');
-              const { buildSchema } = require('graphql');
-
-#### Schemas
- - Em seguida, utilizaremos o método buildSchema para criar o schema da nossa API. Como estamos na primeira parte do tutorial, iniciaremos com algo simples:
-
-              const schema = buildSchema(`
+              module.exports = `
                      type Query {
-                            hello: String
+                            greetingMessage: String,
+                            randomNumber: Float!,
+                            rollThreeDice: [Int],
+                            isSaturday: Boolean!
                      }
-              `);
+              `
 
-Uma simples query denominada hello e que retornará uma string. Observe que, uma vez escolhido o nome de algum schema, você precisa criar um resolver correspondente de mesmo nome!
+Acabamos de criar 4 schemas que retornarão 4 dos 5 tipos principais. Repare que além dos tipos, existem algumas notações como o !, que representa que aquele campo é obrigatório, exigindo um retorno de um Float, e também a denotação de Array em [Int]. Esses tipos e notações de schema estão todos documentados no site do https://graphql.org/ .
 
-(Obs: caso não tenha feito o dever de casa, aqui vai uma segunda chance de conferir o vídeo do Cardoso explicando tudo sobre GraphQL: https://www.youtube.com/watch?v=0MfMYPvimYo&trk=)
+Apesar de termos as queries, para que elas possuam efetivamente o retorno, precisamos dizer para a Api o que ela deverá fazer quando as queries forem solicitadas. Assim, novamente construiremos o resolver para cada query sendo associado pelo nome da variável! Veja:
 
-#### Resolvers
- - O próximo passo, então, é construir nosso resolver!
+ - Em um terminal, digite:
+              
+              touch src/resolvers.js
 
-              const rootValue = {
-                     hello: () => 'Hello World!'
-              };
-Repare que, não quis chamar a variável de resolver e isso tem uma explicação muito simples que em breve trarei para vocês, mas sinta-se livre para tornar o código o mais limpo e legível da maneira que achar mais adequada para seu projeto, só não esqueça de alterar nas outras partes do (meu) código também!
+ - E em seu editor, abra o arquivo resolvers, dentro do diretório src e digite:
 
-O resolver tratará os seus dados e, caso tenha sido definido previamente (como foi o caso), possivelmente retornará algo. No caso, nosso resolver apenas responderá: "Hello World!"
+              module.exports = {
+                     hello: () => 'Hello World!',
 
-#### Setando o servidor
- - Definidos os schemas e os resolvers, é hora de configurar e rodar o servidor:
+                     randomNumber: () => Math.random(),
 
-              const app = express();
+                     rollThreeDice: () => [1, 2, 3].map(() => 1 + Math.floor(Math.random() * 6)),
+
+                     isSaturday: () => (new Date()).getDay() === 6
+              }
+
+Aqui estamos apenas mapeando pelos resolvers e dando o devido tratamento para cada possível requisição solicitada.
+
+### O seu novo server.js
+
+No arquivo server.js vamos trocar as variáveis que tinhamos anteriormente pelos módulos que criamos.
+
+ - Em seu arquivo server.js, abaixo do seu último import, vamos importar os módulos que acabamos de criar:
+
+              // resolvers
+              const rootValue = require('./src/resolvers');
+
+              // queries
+              const queries = require('./src/schemas');
+
+ - Em seguida, apague as variáveis rootValue e schema criadas na primeira parte do nosso tutorial.
+ - Por fim, vamos alterar o objeto parâmetro de graphqlHTTP para:
 
               app.use('/graphql', graphqlHTTP({
-              schema,
-              rootValue,
-              graphiql: true
+                     schema: buildSchema(queries),
+                     rootValue,
+                     graphiql: true
               }));
 
-              app.listen(3333, () => console.log('Express GraphQL Server Now Running On localhost:3333/graphql'));
+## É hora de testar!
 
-Repare que estou servindo essa API na rota /graphql, mas você também pode alterar para a rota que preferir.
-
-Observe também, nesse momento, que as propriedades do objeto que passamos como parâmetro para o método graphqlHTTP possuem nome exatamente igual às variáveis definidas anteriormente, e, por isso, são mapeados pelo JS, o que pra mim facilita bastante tanto na escrita quanto na leitura.
-
-Além disso, é importante destacar que a propriedade graphiql está setada para true, o que significa que será possível utilizar um "playground" do graphql para testar nossas queries enquanto as construimos, na rota e porta que escolhemos servir nossa API.
-
-## Rodando e testando
-Está tudo nos conformes? Seguiu todos os passos corretamente? Então é hora de testar!
-
- - Em um terminal, abra o diretório que contém sua API e digite:
+ - Caso não esteja com o servidor rodando, abra o terminal e digite:
 
               yarn start
 
-Uma mensagem, que nós mesmos setamos, avisará que o servidor já está rodando. Então, está no ar! Abra um navegador em http://localhost:3333/graphql e teste sua query digitando a:
+ - Agora não perca tempo! Corra para o navegador mais próximo e abra http://localhost:3333/graphql e teste!
+
+ - Digite as queries:
 
               {
                      hello
+                     randomNumber
+                     rollThreeDice
+                     isSaturday
               }
 
- - Em seguida, clique em play e voilà!
+ - Aperte play e veja a mágica!
 
-### GG WP
+Nesse momento, sua cabeça já deve estar imaginando todas as infinitas possibilidades para se projetar até aqui. Mas, aparentemente está faltando algo que eu não ensinei mas que é muito necessário na maior parte das funções, certo?
 
-Meus parabéns! Acabou de concluir nosso primeiro tutorial para a construção de uma API em GraphQL. Em breve nós daremos o segundo passo em nossa jornada, aprendendo a realizar operações realmente úteis! Buscaremos informações em listas, filtraremos campos, aprenderemos a passar parâmetros para nossas queries e muito mais! 
+## Passando parâmetros
 
-Até o fim de 4 etapas do nosso tutorial você já saberá montar um CRUD completo e, consequentemente, resolverá os problemas listados e muitos outros!
+Para a maior parte de seus problemas, é possível que seja necessário enviar algumas informações para sua API te fornecer uma resposta mais precisa em relação a uma situação que você tem. Parece confuso agora, mas em breve quando estivermos construindo uma aplicação mais complexa.
 
-Caso tenha tido alguma dificuldade durante o projeto, dá uma olhadinha no código do Github ou envie um e-mail para nós. Além disso, não deixe de dar seu feedback, afinal, só assim cresceremos juntos!
+Por enquanto, utilizarei um exemplo simples para te mostrar como enviar parâmetros para seus endpoints e receber, a partir deles, respostas coerentes.
+
+Suponhamos que você queria rolar dados não só 3 vezes, mas quantas n vezes você quiser. Além disso, não nos restringiremos a dados de 6 lados, mas a dados de quantos n lados quisermos. Assim, teremos que criar uma nova query e passar dois parâmetros para ela: o número de dados jogados e o número de lados dos dados.
+
+ - Em seu arquivo schemas.js, adicione um novo endpoint em seu type Query:
+
+              rollDices(numDices: Int!, numSides: Int!): [Int]
+
+Repare que precisamos definir o tipo de cada variável passada como parâmetro e, além disso, definir se essas variáveis são opcionais ou obrigatórias colocando ou não o !.
+
+ - Em seguida, mapearemos a query com um novo resolver em resolvers.js:
+
+              rollDices: function (args) {
+                     const resp = [];
+
+                     for (let i = 0; i < args.numDices; i++) {
+                     resp.push(1 + Math.floor(Math.random() * args.numSides))
+                     }
+
+                     return resp;
+              }
+
+E, novamente, está pronto! Para enviar os parâmetros dentro da query, faça questão de utilizar exatamente o mesmo nome que usou para mapear as variáveis. 
+
+ - Então, ao enviar a nova query, escreva no playground:
+
+              {
+                     rollDices(numDices: 3, numSides: 6)
+              }
+
+Note que pulei a etapa de iniciar o servidor porque caso ele já esteja rodando, ele atualizou automaticamente devido ao nodemon. Mágico não é mesmo!?
+
+Pronto! Agora você já sabe enviar parâmetros para seus resolvers. Sinta-se livre para criar quais funções você quiser, com quaisquer parâmetros que queira. É muito importante que você treine bastante.
+
+## Próximos passos
+
+Se você chegou até aqui, já sabe iniciar uma Api em NodeJS e ExpressJS em um arquivo server.js. Também sabe agilizar o processo de produção da sua aplicação com nodemon. E hoje, aprendeu a criar queries e passar parâmetros para essas queries. Então, aproveite para inventar suas próprias funções e ir muito além de rolar dados!
+
+### O que falta agora?
+
+Bom, em nossos próximos passos, começaremos efetivamente a criar nosso CRUD. Faremos criações de registros, edições, deleções e os listaremos. Entenderemos a diferença entre queries e resolvers (SPOILER ALERT: não há! Mas por convenção e organização, diferenciaremos no código) e criaremos o esqueleto de uma aplicação de verdade. 
+
+O que acha de continuar acompanhando a série de artigos desse tutorial e aprender a construir a Api de um Blog? Então continue lendo e não deixe de participar deixando seus comentários e dúvidas!
 
 ## Referências:
 
- - https://graphql.org/code/#javascript
- - https://graphql.org/graphql-js/running-an-express-graphql-server/
- - https://yarnpkg.com/en/docs
+ - https://graphql.org/graphql-js/basic-types/
+ - https://graphql.org/graphql-js/passing-arguments/
