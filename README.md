@@ -20,7 +20,7 @@ Mas chega de papo, bora codar!
 ### Início da receitinha parte 3
  - Abra o projeto finalizado na parte 2 desse tutorial (ou clone essa [pasta](https://github.com/Guiradi/Tutorial-API-GraphQL/tree/master/api-graphql-tutorial-part-II)) no seu editor de textos favorito e começaremos fazendo uma pequena alteração em server.js.
 
-       alteraremos o nome da variável queries (linha 10) para schemas, porque é isso o que realmente o são!
+ - Alteraremos o nome da variável queries (linha 10) para schemas, porque é isso o que realmente o são!
 
               // schemas
               const schemas = require('./src/schemas');
