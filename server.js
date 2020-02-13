@@ -6,13 +6,13 @@ const { buildSchema } = require('graphql');
 // resolvers
 const rootValue = require('./src/resolvers');
 
-// queries
-const queries = require('./src/schemas');
+// schemas
+const schemas = require('./src/schemas');
 
 const app = express();
 
 app.use('/graphql', graphqlHTTP({
-    schema: buildSchema(queries),
+    schema: buildSchema(schemas),
     rootValue,
     graphiql: true
 }));

@@ -1,155 +1,275 @@
-# Como construir uma Api GraphQL com NodeJS parte 2
+# Como construir uma Api GraphQL com NodeJS parte 3
+
+Hoje é o dia que tanto esperávamos, vamos começar uma API de um blog!
 
 ## Introdução:
 
 Olá novamente, caros devs e devas de todo Brasil, como estamos?
 
-Este artigo é a continuação do tutorial de como construir uma Api GraphQL com NodeJS e ExpressJS, a qual você pode conferir na branch master desse repo! Então, se você ainda não conferiu, vale a pena dar aquela lida e continuar a partir daqui.
+Este artigo faz parte de uma série de artigos sobre como construir uma API GraphQL com NodeJS e ExpressJS, que você pode acompanhar nos links: 
+       - [Parte 1](https://ezdevs.com.br/como-construir-uma-api-graphql-com-nodejs/)
+       - [Parte 2](https://ezdevs.com.br/como-construir-uma-api-graphql-com-nodejs-parte-2/)
 
-Agora, já coloca o café na xícara, abra um terminal e seu editor de códigos favoritos no diretório que estávamos trabalhando (qualquer coisa é só clonar a branch master do repo!) e bora codar =D
+Se você ainda não conferiu os artigos, vale a pena dar uma conferida, pois alguns conceitos fundamentais sobre o expressJS e, principalmente, sobre o GraphQL foram introduzidos. No entanto, é importante notar que apenas conceitos básicos foram introduzidos, então chega dessa lenga lenga e bora codar algo de verdade! XD
 
-## Hello World, ok. E agora?
+## Hello World, ok. Rolar dados, ok. E agora?
 
-Começaremos essa próxima parte do artigo entendendo melhor o funcionamento do GraphQL na prática. E isso implica na construção de novas queries e novos resolvers para essas queries. Assim, primeiramente vamos estudar sobre os tipos básicos das variáveis que retornarão das queries, que são: String, Int, Float, Boolean e ID, suportados pela linguagem de schemas do GraphQL.
+Agora que entendemos o funcionamento do GraphQL e conhecemos os tipos de variáveis e como trabalhar com elas, montaremos uma estrutura mais complexa de API, onde faremos buscas, criações, atualizações e deleções. Ao final, teremos um CRUD completo e você poderá usar de base para trabalhar seus projetos!
+Mas antes de irmos para a prática, lembre-se de estar em dia com os conceitos de GraphQL, e para isso, você poderá complementar seus estudos com [o vídeo fantástico de Gabriel Cardoso](https://www.youtube.com/watch?v=0MfMYPvimYo&trk=) que abordará dois types que investigaremos a fundo hoje: queries e mutations. 
+Queries e mutations, na prática, são tratadas exatamente iguais para o GraphQL, no entanto, para nós, os utilizaremos para definir como será feita a consulta e a manipulação de dados. Enquanto que, utilizaremos queries para definir as consultas dos dados, ou seja, atuando como o método GET de uma API Rest, as mutations são utilizadas para definir qualquer manipulação a ser feita no dado, seja ela uma criação, alteração ou até deleção, atuando como os métodos POST, PUT, PATCH e DELETE de uma API Rest.
+Mas chega de papo, bora codar!
 
-### Início da receitinha parte 2
- - Após navegar até o diretório do nosso projeto em seu terminal, digite:
+### Início da receitinha parte 3
+ - Abra o projeto finalizado na parte 2 desse tutorial (ou clone essa [pasta](https://github.com/Guiradi/Tutorial-API-GraphQL/tree/master/api-graphql-tutorial-part-II)) no seu editor de textos favorito e começaremos fazendo uma pequena alteração em server.js.
 
-              mkdir src
+ - Alteraremos o nome da variável queries (linha 10) para schemas, porque é isso o que realmente o são!
 
-       ou, se estiver usando windows e não estiver no PowerShell
+              // schemas
+              const schemas = require('./src/schemas');
 
-              md src
+Em seguida, vamos preparar nosso CRUD nos schemas e, para isso, vamos utilizar como exemplo um CRUD de um Blog. Um blog possui, basicamente, posts e esses posts precisam ser criados, atualizados e deletados.
 
-       mas eu recomendo usar o PowerShell!
- - Em seguida:
-
-              touch src/schemas.js
-
- - Agora, em seu editor de textos favorito, abra o arquivo que acabou de criar e digite:
+ - Em schemas, criaremos duas queries, uma para buscar apenas 1 post e uma para buscar vários posts:
 
               module.exports = `
                      type Query {
-                            greetingMessage: String,
-                            randomNumber: Float!,
-                            rollThreeDice: [Int],
-                            isSaturday: Boolean!
+                            post(id: ID!): Post!
+                            posts: [Post!]!
                      }
               `
 
-Acabamos de criar 4 schemas que retornarão 4 dos 5 tipos principais. Repare que além dos tipos, existem algumas notações como o !, que representa que aquele campo é obrigatório, exigindo um retorno de um Float, e também a denotação de Array em [Int]. Esses tipos e notações de schema estão todos documentados no site do https://graphql.org/ .
+## Certo, lembro de termos estudado String, Int, Float e Boolean, mas ID????
+ 
+Muito bem, o GraphQL entende que por ID estamos utilizando um identificador para aquele registro e, por isso, aceita números, símbolos e palavras nesse type.
 
-Apesar de termos as queries, para que elas possuam efetivamente o retorno, precisamos dizer para a Api o que ela deverá fazer quando as queries forem solicitadas. Assim, novamente construiremos o resolver para cada query sendo associado pelo nome da variável! Veja:
+## Ok, o ID está na documentação, mas type Post?????
 
- - Em um terminal, digite:
-              
-              touch src/resolvers.js
+Exatamente! Para mostrarmos posts, utilizaremos o type Post, mas ele não foi definido em lugar algum, então o GraphQL não saberá quem ele é até o apresentarmos!
 
- - E em seu editor, abra o arquivo resolvers, dentro do diretório src e digite:
+ - Então, antes de definirmos as queries (por boas práticas), definiremos o type Post, que aqui funcionará como um model para o objeto Post que queremos ver do blog.
 
-              module.exports = {
-                     hello: () => 'Hello World!',
-
-                     randomNumber: () => Math.random(),
-
-                     rollThreeDice: () => [1, 2, 3].map(() => 1 + Math.floor(Math.random() * 6)),
-
-                     isSaturday: () => (new Date()).getDay() === 6
+              type Post {
+                     id: ID!
+                     title: String!
+                     content: String
+                     author: String
+                     created_at: String
               }
 
-Aqui estamos apenas mapeando pelos resolvers e dando o devido tratamento para cada possível requisição solicitada.
+Não esqueça de salvar todo seu progresso até aqui, tanto no editor quanto no Github!
 
-### O seu novo server.js
+Pronto! Tudo certo com os schemas, então é hora de construirmos os resolvers! Para construir algo simples, ainda não integraremos essa API a nenhum banco de dados, portanto produziremos dados falsos salvos na própria aplicação, construindo uma variável que receberá e mostrará esses dados no nosso resolver. Bora ver como fica?
 
-No arquivo server.js vamos trocar as variáveis que tinhamos anteriormente pelos módulos que criamos.
+### Buscando dados em seu resolver
 
- - Em seu arquivo server.js, abaixo do seu último import, vamos importar os módulos que acabamos de criar:
+ - Reconstrua seu resolver.js para:
 
-              // resolvers
-              const rootValue = require('./src/resolvers');
+              let postList = [
+                     {
+                            id: 1,
+                            title: 'Meu primeiro blog post!',
+                            content: 'Olá leitores assíduos do meu blog, este é meu primeiro blog post e nele eu só desejo dar-lhes as boas vindas!',
+                            author: 'Guilherme Ferreira',
+                            created_at: new Date('2020-02-07T09:35').toDateString()
+                     },
+                     {
+                            id: 2,
+                            title: 'Meu segundo blog post!',
+                            content: 'Olá leitores assíduos do meu blog, este é meu segundo blog post e nele eu queria dizer como estou contente hoje!',
+                            author: 'Guilherme Ferreira',
+                            created_at: new Date('2020-02-10T08:00').toDateString()
+                     }
+              ]
 
-              // queries
-              const queries = require('./src/schemas');
+              module.exports = {
+                     post: ({ id }) => postList.find(post => post.id === +id),
+                     posts: () => postList
+              }
 
- - Em seguida, apague as variáveis rootValue e schema criadas na primeira parte do nosso tutorial.
- - Por fim, vamos alterar o objeto parâmetro de graphqlHTTP para:
+Podemos ver que criamos uma variável postList e nela incluimos dois objetos exatamente como definimos o nosso modelo de Post. Além disso, criamos dois resolvers, ou seja, funções com os mesmos nomes que nossos schemas possuem. 
+No caso, post recebe uma variável id que retornará o post identificado pelo id pedido na query, enquanto posts não precisa receber nenhuma variável e retornará a lista completa de blog posts!
 
-              app.use('/graphql', graphqlHTTP({
-                     schema: buildSchema(queries),
-                     rootValue,
-                     graphiql: true
-              }));
+## Mas onde está a mágica do GraphQL nisso tudo?
 
-## É hora de testar!
+Pois é, até agora não fizemos nada que uma API Rest não faria. Mas a mágica do GraphQL começa na hora de buscar esses dados! 
+Nem sempre precisamos saber todas as informações de um blog post em qualquer página! Pode ser que você queira, em uma página, listar apenas os nomes dos posts acompanhados do nome do autor deles e isso é perfeitamente entendível tratando-se de visualizações mobile, por exemplo. É aí que o GraphQL cuida de tudo para nós, você busca o que você pede!
 
- - Caso não esteja com o servidor rodando, abra o terminal e digite:
+ - Rode seu server abrindo um terminal, navegando até o diretório da API e digitando:
 
               yarn start
 
- - Agora não perca tempo! Corra para o navegador mais próximo e abra http://localhost:3333/graphql e teste!
+ - ou (se optou utilizar o npm)
 
- - Digite as queries:
+              npm start
+
+Não se esqueça de conferir se os pacotes estão instalados caso tenha acabado de clonar ou forkear o repositório ( com yarn i ou npm i).
+
+ - Em seguida, abra seu navegador em http://localhost:3333/graphql e teste:
 
               {
-                     hello
-                     randomNumber
-                     rollThreeDice
-                     isSaturday
+                     posts {
+                            id
+                            title
+                            author
+                     }
               }
 
- - Aperte play e veja a mágica!
+Então verá a magia do GraphQL acontecendo! Lindo não?
+ - Aproveite também para usar um dos ids mostrados em:
 
-Nesse momento, sua cabeça já deve estar imaginando todas as infinitas possibilidades para se projetar até aqui. Mas, aparentemente está faltando algo que eu não ensinei mas que é muito necessário na maior parte das funções, certo?
+              {
+                     post(id: 1) {
+                            id
+                            title
+                            content
+                            author
+                            created_at
+                     }
+              }
 
-## Passando parâmetros
+Pois é possível que seu usuário clique em um dos posts para ver o seu conteúdo e mais informações sobre ele! Mas se quiser mostrar só o conteúdo, ou só a data de criação, tudo é possível! Brinque muito!
 
-Para a maior parte de seus problemas, é possível que seja necessário enviar algumas informações para sua API te fornecer uma resposta mais precisa em relação a uma situação que você tem. Parece confuso agora, mas em breve quando estivermos construindo uma aplicação mais complexa.
+## Empolgados também? Então vamos terminar esse CRUD!
 
-Por enquanto, utilizarei um exemplo simples para te mostrar como enviar parâmetros para seus endpoints e receber, a partir deles, respostas coerentes.
+Agora que criamos as queries de busca, vamos começar as criações, edições e deleções! E, para isso, como falei anteriormente, defineremos os schemas de manipulações de dados nas mutations. Além disso, facilitaremos a leitura desses schemas criando os types Input do GraphQL.
+Inputs são na verdade types utilizados como Models para nossos parâmetros enviados às mutations. Portanto, antes de escrevermos algo do tipo:
 
-Suponhamos que você queria rolar dados não só 3 vezes, mas quantas n vezes você quiser. Além disso, não nos restringiremos a dados de 6 lados, mas a dados de quantos n lados quisermos. Assim, teremos que criar uma nova query e passar dois parâmetros para ela: o número de dados jogados e o número de lados dos dados.
+              createPost(title: String!, content: String, author: String): Post
+              updatePost(id: ID!, title: String!, content: String, author: String): Boolean
 
- - Em seu arquivo schemas.js, adicione um novo endpoint em seu type Query:
+Podemos definir um input que contenha os campos em comum em ambas as mutations, para facilitar a escrita e leitura do código.
 
-              rollDices(numDices: Int!, numSides: Int!): [Int]
+ - Dessa forma, nosso arquivo schemas.js será:
 
-Repare que precisamos definir o tipo de cada variável passada como parâmetro e, além disso, definir se essas variáveis são opcionais ou obrigatórias colocando ou não o !.
-
- - Em seguida, mapearemos a query com um novo resolver em resolvers.js:
-
-              rollDices: function (args) {
-                     const resp = [];
-
-                     for (let i = 0; i < args.numDices; i++) {
-                     resp.push(1 + Math.floor(Math.random() * args.numSides))
+              module.exports = `
+                     type Post {
+                            id: ID!
+                            title: String!
+                            content: String
+                            author: String
+                            created_at: String
                      }
 
-                     return resp;
+                     input PostInput {
+                            id: ID
+                            title: String
+                            content: String
+                            author: String
+                     }
+
+                     type Query {
+                            post(id: ID!): Post!
+                            posts: [Post!]!
+                     }
+
+                     type Mutation {
+                            createPost(input: PostInput!): Post!
+                            updatePost(input: PostInput!): Post!
+                            deletePost(id: ID!): Boolean
+                     }
+              `
+
+Lembre-se que se algo não estiver muito claro ou muitas dúvidas surgirem em algum momento e não forem esclarecidas no texto, você sempre pode deixar um comentário ou enviar um e-mail para guilherme.ferreira@ezdevs.tech
+
+ - Com os schemas prontos, vamos montar nossos resolvers do CRUD:
+ 
+              createPost: ({ input }) => {
+                     const newPost = { ...input, id: postList.length + 1, created_at: new Date().toDateString() };
+                     postList.push(newPost);
+                     return newPost;
+              },
+
+              updatePost: ({ input }) => {
+                     const { id: postId, ...newPostData } = input
+                     const index = postList.map(({ id }) => id).indexOf(+postId);
+                     postList[index] = { ...postList[index], ...newPostData };
+                     return postList[index];
+              },
+
+              deletePost: ({ id: postId }) => {
+                     postList = postList.filter(({ id }) => id !== +postId);
+                     return true;
               }
 
-E, novamente, está pronto! Para enviar os parâmetros dentro da query, faça questão de utilizar exatamente o mesmo nome que usou para mapear as variáveis. 
+### Testes e mais testes!
 
- - Então, ao enviar a nova query, escreva no playground:
+A mágica do GraphQL para as mutations, no caso de criações e deleções, é que podemos criar posts apenas com os campos que especificarmos. É claro que, em APIs mais complexas, precisaremos tratar todos os possíveis erros, como por exemplo, não especificar alguns campos obrigatórios para que um post seja criado ou não enviar um id para atualizar o post, ou até enviar ids que não existam em sua base! Mas deixaremos isso para um outro momento.
+
+Vamos fazer alguns testes no nosso playground (http://localhost:3333/graphql):
+
+ - Criação:
+
+              mutation {
+                     createPost(input: {
+                            title: "Meu terceiro blog post!",
+                            content: "Olá leitores assíduos do meu blog, este é meu segundo blog post e nele eu queria dizer que estamos pertos de completar um CRUD! Terminei o método de criação com sucesso =D",
+                            author: "Guilherme Ferreira"
+                     }) {
+                            id
+                            title
+                     }
+              }
+
+ - Atualização:
+
+              mutation {
+                     updatePost(input: { id: 3, title: "Terminando o CRUD" }) {
+                            id
+                            title
+                     }
+              }
+
+ - Deleção:
+
+              mutation {
+                    deletePost(id: 1)
+              }
+
+Agora, se buscar pela query posts, terá uma resposta como:
+
+ - Busca todos os posts:
 
               {
-                     rollDices(numDices: 3, numSides: 6)
+                     posts {
+                            id
+                            title
+                            content
+                            author
+                            created_at
+                     }
               }
 
-Note que pulei a etapa de iniciar o servidor porque caso ele já esteja rodando, ele atualizou automaticamente devido ao nodemon. Mágico não é mesmo!?
+ - Resposta:
 
-Pronto! Agora você já sabe enviar parâmetros para seus resolvers. Sinta-se livre para criar quais funções você quiser, com quaisquer parâmetros que queira. É muito importante que você treine bastante.
+              {
+                     "data": {
+                            "posts": [
+                                   {
+                                          "id": "2",
+                                          "title": "Meu segundo blog post!",
+                                          "content": "Olá leitores assíduos do meu blog, este é meu segundo blog post e nele eu queria dizer como estou contente hoje!",
+                                          "author": "Guilherme Ferreira",
+                                          "created_at": "Mon Feb 10 2020"
+                                   },
+                                   {
+                                          "id": "3",
+                                          "title": "Terminando o CRUD",
+                                          "content": "Olá leitores assíduos do meu blog, este é meu segundo blog post e nele eu queria dizer que estamos pertos de completar um CRUD! Terminei o método de criação com sucesso =D",
+                                          "author": "Guilherme Ferreira",
+                                          "created_at": "Wed Feb 12 2020"
+                                   }
+                            ]
+                     }
+              }
+
+E pronto! Agora você já consegue criar um CRUD completo e se utilizar os conhecimentos de todas as etapas, pode torná-lo muito mais complexo que isso, validando as entradas do usuário, personalizando as deleções (tente fazer uma deleção lógica!) e tratando os erros de resposta da API.
 
 ## Próximos passos
 
-Se você chegou até aqui, já sabe iniciar uma Api em NodeJS e ExpressJS em um arquivo server.js. Também sabe agilizar o processo de produção da sua aplicação com nodemon. E hoje, aprendeu a criar queries e passar parâmetros para essas queries. Então, aproveite para inventar suas próprias funções e ir muito além de rolar dados!
+Se você chegou até aqui, sabe muito sobre o básico do GraphQL e é capaz até de construir um CRUD para seus primeiros projetos de API! Parabéns, use e abuse desse conhecimento, inclusive com muito da [documentação do graphQL](https://graphql.org/graphql-js) e divirta-se!
 
 ### O que falta agora?
 
-Bom, em nossos próximos passos, começaremos efetivamente a criar nosso CRUD. Faremos criações de registros, edições, deleções e os listaremos. Entenderemos a diferença entre queries e mutations (SPOILER ALERT: não há! Mas por convenção e organização, diferenciaremos no código) e criaremos o esqueleto de uma aplicação de verdade. 
+Bom, nossa API cria uma variável e vai salvando valores dentro dela, isso lhe parece algo razoável? Claro que não! Então, em nosso próximo passo, faremos nossa API se tornar um pouco mais robusta e conectar-se a um banco de dados para salvar esses dados, além disso, não seria ótimo se as pessoas pudessem comentar e curtir os posts do nosso blog? Como podemos tornar isso simples com GraphQL?
 
-O que acha de continuar acompanhando a série de artigos desse tutorial e aprender a construir a Api de um Blog? Então continue lendo e não deixe de participar deixando seus comentários e dúvidas!
-
-## Referências:
-
- - https://graphql.org/graphql-js/basic-types/
- - https://graphql.org/graphql-js/passing-arguments/
+Portanto, continue sendo um leitor assíduo desse tutorial de API que está se desenvolvendo e tem potencial para ser a próxima API do seu projeto! Além disso, deixe suas dúvidas e sugestões nos comentários, adoramos interagir com vocês!

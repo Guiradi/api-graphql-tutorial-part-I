@@ -1,19 +1,40 @@
+let postList = [
+    {
+        id: 1,
+        title: 'Meu primeiro blog post!',
+        content: 'Olá leitores assíduos do meu blog, este é meu primeiro blog post e nele eu só desejo dar-lhes as boas vindas!',
+        author: 'Guilherme Ferreira',
+        created_at: new Date('2020-02-07T09:35').toDateString()
+    },
+    {
+        id: 2,
+        title: 'Meu segundo blog post!',
+        content: 'Olá leitores assíduos do meu blog, este é meu segundo blog post e nele eu queria dizer como estou contente hoje!',
+        author: 'Guilherme Ferreira',
+        created_at: new Date('2020-02-10T08:00').toDateString()
+    }
+]
+
 module.exports = {
-    hello: () => 'Hello World!',
+    post: ({ id }) => postList.find(post => post.id === +id),
 
-    randomNumber: () => Math.random(),
+    posts: () => postList,
 
-    rollThreeDice: () => [1, 2, 3].map(() => 1 + Math.floor(Math.random() * 6)),
+    createPost: ({ input }) => {
+        const newPost = { ...input, id: postList.length + 1, created_at: new Date().toDateString() };
+        postList.push(newPost);
+        return newPost;
+    },
 
-    isSaturday: () => (new Date()).getDay() === 6,
+    updatePost: ({ input }) => {
+        const { id: postId, ...newPostData } = input
+        const index = postList.map(({ id }) => id).indexOf(+postId);
+        postList[index] = { ...postList[index], ...newPostData };
+        return postList[index];
+    },
 
-    rollDices: function (args) {
-        const resp = [];
-
-        for (let i = 0; i < args.numDices; i++) {
-            resp.push(1 + Math.floor(Math.random() * args.numSides))
-        }
-
-        return resp;
+    deletePost: ({ id: postId }) => {
+        postList = postList.filter(({ id }) => id !== +postId);
+        return true;
     }
 }
