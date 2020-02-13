@@ -190,3 +190,86 @@ Lembre-se que se algo não estiver muito claro ou muitas dúvidas surgirem em al
                      postList = postList.filter(({ id }) => id !== +postId);
                      return true;
               }
+
+### Testes e mais testes!
+
+A mágica do GraphQL para as mutations, no caso de criações e deleções, é que podemos criar posts apenas com os campos que especificarmos. É claro que, em APIs mais complexas, precisaremos tratar todos os possíveis erros, como por exemplo, não especificar alguns campos obrigatórios para que um post seja criado ou não enviar um id para atualizar o post, ou até enviar ids que não existam em sua base! Mas deixaremos isso para um outro momento.
+
+Vamos fazer alguns testes no nosso playground (http://localhost:3333/graphql):
+
+ - Criação:
+
+              mutation {
+                     createPost(input: {
+                            title: "Meu terceiro blog post!",
+                            content: "Olá leitores assíduos do meu blog, este é meu segundo blog post e nele eu queria dizer que estamos pertos de completar um CRUD! Terminei o método de criação com sucesso =D",
+                            author: "Guilherme Ferreira"
+                     }) {
+                            id
+                            title
+                     }
+              }
+
+ - Atualização:
+
+              mutation {
+                     updatePost(input: { id: 3, title: "Terminando o CRUD" }) {
+                            id
+                            title
+                     }
+              }
+
+ - Deleção:
+
+              mutation {
+                    deletePost(id: 1)
+              }
+
+Agora, se buscar pela query posts, terá uma resposta como:
+
+ - Busca todos os posts:
+
+              {
+                     posts {
+                            id
+                            title
+                            content
+                            author
+                            created_at
+                     }
+              }
+
+ - Resposta:
+
+              {
+                     "data": {
+                            "posts": [
+                                   {
+                                          "id": "2",
+                                          "title": "Meu segundo blog post!",
+                                          "content": "Olá leitores assíduos do meu blog, este é meu segundo blog post e nele eu queria dizer como estou contente hoje!",
+                                          "author": "Guilherme Ferreira",
+                                          "created_at": "Mon Feb 10 2020"
+                                   },
+                                   {
+                                          "id": "3",
+                                          "title": "Terminando o CRUD",
+                                          "content": "Olá leitores assíduos do meu blog, este é meu segundo blog post e nele eu queria dizer que estamos pertos de completar um CRUD! Terminei o método de criação com sucesso =D",
+                                          "author": "Guilherme Ferreira",
+                                          "created_at": "Wed Feb 12 2020"
+                                   }
+                            ]
+                     }
+              }
+
+E pronto! Agora você já consegue criar um CRUD completo e se utilizar os conhecimentos de todas as etapas, pode torná-lo muito mais complexo que isso, validando as entradas do usuário, personalizando as deleções (tente fazer uma deleção lógica!) e tratando os erros de resposta da API.
+
+## Próximos passos
+
+Se você chegou até aqui, sabe muito sobre o básico do GraphQL e é capaz até de construir um CRUD para seus primeiros projetos de API! Parabéns, use e abuse desse conhecimento, inclusive com muito da [documentação do graphQL](https://graphql.org/graphql-js) e divirta-se!
+
+### O que falta agora?
+
+Bom, nossa API cria uma variável e vai salvando valores dentro dela, isso lhe parece algo razoável? Claro que não! Então, em nosso próximo passo, faremos nossa API se tornar um pouco mais robusta e conectar-se a um banco de dados para salvar esses dados, além disso, não seria ótimo se as pessoas pudessem comentar e curtir os posts do nosso blog? Como podemos tornar isso simples com GraphQL?
+
+Portanto, continue sendo um leitor assíduo desse tutorial de API que está se desenvolvendo e tem potencial para ser a próxima API do seu projeto! Além disso, deixe suas dúvidas e sugestões nos comentários, adoramos interagir com vocês!
