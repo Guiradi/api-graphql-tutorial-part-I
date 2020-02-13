@@ -64,7 +64,7 @@ Pronto! Tudo certo com os schemas, então é hora de construirmos os resolvers! 
 
  - Reconstrua seu resolver.js para:
 
-              const postList = [
+              let postList = [
                      {
                             id: 1,
                             title: 'Meu primeiro blog post!',
@@ -174,7 +174,7 @@ Lembre-se que se algo não estiver muito claro ou muitas dúvidas surgirem em al
  - Com os schemas prontos, vamos montar nossos resolvers do CRUD:
  
               createPost: ({ input }) => {
-                     const newPost = { ...input, id: postList.length, created_at: Date.now().toDateString() };
+                     const newPost = { ...input, id: postList.length + 1, created_at: new Date().toDateString() };
                      postList.push(newPost);
                      return newPost;
               },
@@ -187,6 +187,6 @@ Lembre-se que se algo não estiver muito claro ou muitas dúvidas surgirem em al
               },
 
               deletePost: ({ id: postId }) => {
-                     const postList = postList.filter(({ id }) => id !== +postId);
+                     postList = postList.filter(({ id }) => id !== +postId);
                      return true;
               }

@@ -1,4 +1,4 @@
-const postList = [
+let postList = [
     {
         id: 1,
         title: 'Meu primeiro blog post!',
@@ -21,7 +21,7 @@ module.exports = {
     posts: () => postList,
 
     createPost: ({ input }) => {
-        const newPost = { ...input, id: postList.length, created_at: Date.now().toDateString() };
+        const newPost = { ...input, id: postList.length + 1, created_at: new Date().toDateString() };
         postList.push(newPost);
         return newPost;
     },
@@ -34,7 +34,7 @@ module.exports = {
     },
 
     deletePost: ({ id: postId }) => {
-        const postList = postList.filter(({ id }) => id !== +postId);
+        postList = postList.filter(({ id }) => id !== +postId);
         return true;
     }
 }
