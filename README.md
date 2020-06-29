@@ -205,3 +205,7 @@ Se quiser ver um pouco mais sobre API's NodeJS e como efetuar a conexão com um 
 Por fim, queria agradecer a atenção nessa jornada para desvendar um pouco sobre o poderoso graphQL! Não deixe de acompanhar os conteúdos da ez.devs no blog e [no canal do Youtube](https://www.youtube.com/watch?v=QJLEuIpbWd0)!
 
 Até a próxima jornada =D
+
+# Bibliografia:
+
+As documentações mais perfeitas do mundo, é claro: https://www.howtographql.com/ e https://graphql.org/learn/
