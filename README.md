@@ -1,52 +1,48 @@
-# Como construir uma Api GraphQL com NodeJS parte 3
+# Como construir uma Api GraphQL com NodeJS parte 4
 
-Hoje é o dia que tanto esperávamos, vamos começar uma API de um blog!
+Hoje é, enfim, a conclusão de uma saga para aprender muito sobre o GraphQL. Você já é um vencedor por chegar até aqui!
 
 ## Introdução:
 
-Olá novamente, caros devs e devas de todo Brasil, como estamos?
+Que grande prazer encontrá-los novamente,, caros devs e devas de todo Brasil! Como estão?
 
 Este artigo faz parte de uma série de artigos sobre como construir uma API GraphQL com NodeJS e ExpressJS, que você pode acompanhar nos links: 
        - [Parte 1](https://ezdevs.com.br/como-construir-uma-api-graphql-com-nodejs/)
        - [Parte 2](https://ezdevs.com.br/como-construir-uma-api-graphql-com-nodejs-parte-2/)
+       - [Parte 3](https://ezdevs.com.br/como-construir-uma-api-graphql-com-nodejs-parte-3/)
 
-Se você ainda não conferiu os artigos, vale a pena dar uma conferida, pois alguns conceitos fundamentais sobre o expressJS e, principalmente, sobre o GraphQL foram introduzidos. No entanto, é importante notar que apenas conceitos básicos foram introduzidos, então chega dessa lenga lenga e bora codar algo de verdade! XD
+Se você ainda não conferiu os artigos, vale a pena dar uma conferida, pois com as partes anteriores já é possível estruturar um blog completo! Estamos criando, atualizando e deletando posts! No entanto, é preciso ressaltar que um blog não é feito apenas de posts, não é verdade? Além disso, o GraphQL vai tornando-se poderoso, a partir do momento em que se descobre todo seu potencial como linguagem, respeitando padrões do design de software, como o SOLID!
 
-## Hello World, ok. Rolar dados, ok. E agora?
+### Início da receitinha parte 4
+ - Abra o projeto finalizado na parte 3 desse tutorial (ou clone essa [pasta](https://github.com/Guiradi/Tutorial-API-GraphQL/tree/master/api-graphql-tutorial-part-III)) no seu editor de textos favorito e começaremos escrevendo os nossos novos schemas para comentários e curtidas!
 
-Agora que entendemos o funcionamento do GraphQL e conhecemos os tipos de variáveis e como trabalhar com elas, montaremos uma estrutura mais complexa de API, onde faremos buscas, criações, atualizações e deleções. Ao final, teremos um CRUD completo e você poderá usar de base para trabalhar seus projetos!
-Mas antes de irmos para a prática, lembre-se de estar em dia com os conceitos de GraphQL, e para isso, você poderá complementar seus estudos com [o vídeo fantástico de Gabriel Cardoso](https://www.youtube.com/watch?v=0MfMYPvimYo&trk=) que abordará dois types que investigaremos a fundo hoje: queries e mutations. 
-Queries e mutations, na prática, são tratadas exatamente iguais para o GraphQL, no entanto, para nós, os utilizaremos para definir como será feita a consulta e a manipulação de dados. Enquanto que, utilizaremos queries para definir as consultas dos dados, ou seja, atuando como o método GET de uma API Rest, as mutations são utilizadas para definir qualquer manipulação a ser feita no dado, seja ela uma criação, alteração ou até deleção, atuando como os métodos POST, PUT, PATCH e DELETE de uma API Rest.
-Mas chega de papo, bora codar!
+ - Em src/schemas.js, começaremos inserindo um novo type para representar uma classe de comentários, que terá um id (identificador) e um Content (conteúdo do comentário). Além disso, incluiremos o type post nos comentários para que seja possível acessar o post em que o comentário foi escrito:
 
-### Início da receitinha parte 3
- - Abra o projeto finalizado na parte 2 desse tutorial (ou clone essa [pasta](https://github.com/Guiradi/Tutorial-API-GraphQL/tree/master/api-graphql-tutorial-part-II)) no seu editor de textos favorito e começaremos fazendo uma pequena alteração em server.js.
+              type Comment {
+                     id: ID!
+                     content: String
+                     post: Post!
+              }
 
- - Alteraremos o nome da variável queries (linha 10) para schemas, porque é isso o que realmente o são!
+Em seguida, criaremos um type Like para as curtidas que tanto os comentários quanto os posts poderão receber. Portanto esse type precisa ter um identificador (id), uma propriedade que especifique seu tipo (type), e o objeto que ele se relaciona (post ou comment). Mas qual a melhor maneira de implementar um objeto que não sabemos o que pode ser?
 
-              // schemas
-              const schemas = require('./src/schemas');
+## Union Types
 
-Em seguida, vamos preparar nosso CRUD nos schemas e, para isso, vamos utilizar como exemplo um CRUD de um Blog. Um blog possui, basicamente, posts e esses posts precisam ser criados, atualizados e deletados.
+Os union types são muito parecidos com interfaces, mas que não precisam especificar nenhum campo em comum específico entre os types unidos.
 
- - Em schemas, criaremos duas queries, uma para buscar apenas 1 post e uma para buscar vários posts:
+ - Para especificar para a query que apresentaremos um objeto curtido que pode tanto ser um post quanto um comentário, incluiremos o union no nosso src/schemas.js:
 
-              module.exports = `
-                     type Query {
-                            post(id: ID!): Post!
-                            posts: [Post!]!
-                     }
-              `
+              union LikedObject = Post | Comment
+       
+ - Assim, ao criar o type Like, podemos utilizar essa união e mostrar que ela é obrigatória na hora de especificar o objeto curtido:
 
-## Certo, lembro de termos estudado String, Int, Float e Boolean, mas ID????
- 
-Muito bem, o GraphQL entende que por ID estamos utilizando um identificador para aquele registro e, por isso, aceita números, símbolos e palavras nesse type.
+              type Like {
+                     id: ID!
+                     type: String!
+                     likedObject: LikedObject!
+              }
 
-## Ok, o ID está na documentação, mas type Post?????
-
-Exatamente! Para mostrarmos posts, utilizaremos o type Post, mas ele não foi definido em lugar algum, então o GraphQL não saberá quem ele é até o apresentarmos!
-
- - Então, antes de definirmos as queries (por boas práticas), definiremos o type Post, que aqui funcionará como um model para o objeto Post que queremos ver do blog.
+ - Como o Like é uma estrutura pertencente à posts e comentários e o comentário é uma estrutura pertencente ao post, podemos incluir essas relações nos types e nosso schema ficará dessa forma:
 
               type Post {
                      id: ID!
@@ -54,222 +50,158 @@ Exatamente! Para mostrarmos posts, utilizaremos o type Post, mas ele não foi de
                      content: String
                      author: String
                      created_at: String
+                     comments: [Comment]
+                     likes: [Like]
               }
 
-Não esqueça de salvar todo seu progresso até aqui, tanto no editor quanto no Github!
-
-Pronto! Tudo certo com os schemas, então é hora de construirmos os resolvers! Para construir algo simples, ainda não integraremos essa API a nenhum banco de dados, portanto produziremos dados falsos salvos na própria aplicação, construindo uma variável que receberá e mostrará esses dados no nosso resolver. Bora ver como fica?
-
-### Buscando dados em seu resolver
-
- - Reconstrua seu resolver.js para:
-
-              let postList = [
-                     {
-                            id: 1,
-                            title: 'Meu primeiro blog post!',
-                            content: 'Olá leitores assíduos do meu blog, este é meu primeiro blog post e nele eu só desejo dar-lhes as boas vindas!',
-                            author: 'Guilherme Ferreira',
-                            created_at: new Date('2020-02-07T09:35').toDateString()
-                     },
-                     {
-                            id: 2,
-                            title: 'Meu segundo blog post!',
-                            content: 'Olá leitores assíduos do meu blog, este é meu segundo blog post e nele eu queria dizer como estou contente hoje!',
-                            author: 'Guilherme Ferreira',
-                            created_at: new Date('2020-02-10T08:00').toDateString()
-                     }
-              ]
-
-              module.exports = {
-                     post: ({ id }) => postList.find(post => post.id === +id),
-                     posts: () => postList
+              type Comment {
+                     id: ID!
+                     content: String
+                     post: Post!
+                     likes: [Like]
               }
 
-Podemos ver que criamos uma variável postList e nela incluimos dois objetos exatamente como definimos o nosso modelo de Post. Além disso, criamos dois resolvers, ou seja, funções com os mesmos nomes que nossos schemas possuem. 
-No caso, post recebe uma variável id que retornará o post identificado pelo id pedido na query, enquanto posts não precisa receber nenhuma variável e retornará a lista completa de blog posts!
+              union LikedObject = Post | Comment
 
-## Mas onde está a mágica do GraphQL nisso tudo?
+              type Like {
+                     id: ID!
+                     type: String!
+                     likedObject: LikedObject!
+              }
 
-Pois é, até agora não fizemos nada que uma API Rest não faria. Mas a mágica do GraphQL começa na hora de buscar esses dados! 
-Nem sempre precisamos saber todas as informações de um blog post em qualquer página! Pode ser que você queira, em uma página, listar apenas os nomes dos posts acompanhados do nome do autor deles e isso é perfeitamente entendível tratando-se de visualizações mobile, por exemplo. É aí que o GraphQL cuida de tudo para nós, você busca o que você pede!
+Observe que em post, podemos ter vários comentários e vários likes, portanto essas estruturas estão inclusas como arrays dentro dos objetos pais. Também é importante ressaltar que em comentários, podemos ter muitos likes, logo sua estrutura também é um array, no entanto um comentário pode ser atribuído apenas a um único post, portanto representando um único objeto de post.
 
- - Rode seu server abrindo um terminal, navegando até o diretório da API e digitando:
+## Pratique!
 
-              yarn start
+Veremos agora um exemplo de busca eficiente em uma API GraphQL, mas dessa vez não desenvolveremos a lógica da aplicação, já que o importante nessa parte do tutorial é desenvolver e praticar suas habilidades com o graphQL em si. Portanto, para que seja possível testar isso em prática, é importante que as relações das tabelas ou objetos (no caso de bancos não relacionais) estejam corretamente inseridas e, em cada contexto, corretamente associada.
 
- - ou (se optou utilizar o npm)
+ - Em uma situação onde queremos buscar os comentários com seus likes em dado post, construíriamos uma query em src/schemas.js da forma como já construímos:
 
-              npm start
+              type Query {
+                     post(id: ID!): Post!
+              }
 
-Não se esqueça de conferir se os pacotes estão instalados caso tenha acabado de clonar ou forkear o repositório ( com yarn i ou npm i).
-
- - Em seguida, abra seu navegador em http://localhost:3333/graphql e teste:
+ - Para efetuar essa busca, enviaremos o json da requisição da seguinte forma:
 
               {
-                     posts {
-                            id
-                            title
-                            author
-                     }
-              }
-
-Então verá a magia do GraphQL acontecendo! Lindo não?
- - Aproveite também para usar um dos ids mostrados em:
-
-              {
-                     post(id: 1) {
-                            id
-                            title
-                            content
-                            author
-                            created_at
-                     }
-              }
-
-Pois é possível que seu usuário clique em um dos posts para ver o seu conteúdo e mais informações sobre ele! Mas se quiser mostrar só o conteúdo, ou só a data de criação, tudo é possível! Brinque muito!
-
-## Empolgados também? Então vamos terminar esse CRUD!
-
-Agora que criamos as queries de busca, vamos começar as criações, edições e deleções! E, para isso, como falei anteriormente, defineremos os schemas de manipulações de dados nas mutations. Além disso, facilitaremos a leitura desses schemas criando os types Input do GraphQL.
-Inputs são na verdade types utilizados como Models para nossos parâmetros enviados às mutations. Portanto, antes de escrevermos algo do tipo:
-
-              createPost(title: String!, content: String, author: String): Post
-              updatePost(id: ID!, title: String!, content: String, author: String): Boolean
-
-Podemos definir um input que contenha os campos em comum em ambas as mutations, para facilitar a escrita e leitura do código.
-
- - Dessa forma, nosso arquivo schemas.js será:
-
-              module.exports = `
-                     type Post {
-                            id: ID!
-                            title: String!
-                            content: String
-                            author: String
-                            created_at: String
-                     }
-
-                     input PostInput {
-                            id: ID
-                            title: String
-                            content: String
-                            author: String
-                     }
-
-                     type Query {
-                            post(id: ID!): Post!
-                            posts: [Post!]!
-                     }
-
-                     type Mutation {
-                            createPost(input: PostInput!): Post!
-                            updatePost(input: PostInput!): Post!
-                            deletePost(id: ID!): Boolean
-                     }
-              `
-
-Lembre-se que se algo não estiver muito claro ou muitas dúvidas surgirem em algum momento e não forem esclarecidas no texto, você sempre pode deixar um comentário ou enviar um e-mail para guilherme.ferreira@ezdevs.tech
-
- - Com os schemas prontos, vamos montar nossos resolvers do CRUD:
- 
-              createPost: ({ input }) => {
-                     const newPost = { ...input, id: postList.length + 1, created_at: new Date().toDateString() };
-                     postList.push(newPost);
-                     return newPost;
-              },
-
-              updatePost: ({ input }) => {
-                     const { id: postId, ...newPostData } = input
-                     const index = postList.map(({ id }) => id).indexOf(+postId);
-                     postList[index] = { ...postList[index], ...newPostData };
-                     return postList[index];
-              },
-
-              deletePost: ({ id: postId }) => {
-                     postList = postList.filter(({ id }) => id !== +postId);
-                     return true;
-              }
-
-### Testes e mais testes!
-
-A mágica do GraphQL para as mutations, no caso de criações e deleções, é que podemos criar posts apenas com os campos que especificarmos. É claro que, em APIs mais complexas, precisaremos tratar todos os possíveis erros, como por exemplo, não especificar alguns campos obrigatórios para que um post seja criado ou não enviar um id para atualizar o post, ou até enviar ids que não existam em sua base! Mas deixaremos isso para um outro momento.
-
-Vamos fazer alguns testes no nosso playground (http://localhost:3333/graphql):
-
- - Criação:
-
-              mutation {
-                     createPost(input: {
-                            title: "Meu terceiro blog post!",
-                            content: "Olá leitores assíduos do meu blog, este é meu segundo blog post e nele eu queria dizer que estamos pertos de completar um CRUD! Terminei o método de criação com sucesso =D",
-                            author: "Guilherme Ferreira"
-                     }) {
-                            id
-                            title
-                     }
-              }
-
- - Atualização:
-
-              mutation {
-                     updatePost(input: { id: 3, title: "Terminando o CRUD" }) {
-                            id
-                            title
-                     }
-              }
-
- - Deleção:
-
-              mutation {
-                    deletePost(id: 1)
-              }
-
-Agora, se buscar pela query posts, terá uma resposta como:
-
- - Busca todos os posts:
-
-              {
-                     posts {
-                            id
-                            title
-                            content
-                            author
-                            created_at
-                     }
-              }
-
- - Resposta:
-
-              {
-                     "data": {
-                            "posts": [
-                                   {
-                                          "id": "2",
-                                          "title": "Meu segundo blog post!",
-                                          "content": "Olá leitores assíduos do meu blog, este é meu segundo blog post e nele eu queria dizer como estou contente hoje!",
-                                          "author": "Guilherme Ferreira",
-                                          "created_at": "Mon Feb 10 2020"
-                                   },
-                                   {
-                                          "id": "3",
-                                          "title": "Terminando o CRUD",
-                                          "content": "Olá leitores assíduos do meu blog, este é meu segundo blog post e nele eu queria dizer que estamos pertos de completar um CRUD! Terminei o método de criação com sucesso =D",
-                                          "author": "Guilherme Ferreira",
-                                          "created_at": "Wed Feb 12 2020"
+                     post(id: "id_do_post") {
+                            comments {
+                                   id
+                                   content
+                                   likes {
+                                          id
+                                          type
                                    }
-                            ]
+                            }
+                     }
+              }
+       
+Dessa forma, apenas com o id da postagem, conseguimos buscar da nossa API o id e conteúdo de cada comentário feito naquele post e, além disso, os likes de cada comentário.
+Mas e o caminho reverso? E se de alguma forma nós obtivéssemos o id com like e gostaríamos de acessar um dos tipos da união LikedObject?
+
+ - Em uma suposta query para buscar o like, como: 
+
+              type Query {
+                     like(like_id: ID!): Like!
+              }
+
+ - O json da requisição pode ser construído da seguinte forma:
+
+              {
+                     like(like_id: "id_do_like") {
+                            likedObject {
+                                   id
+                                   content
+                                   likes {
+                                          id
+                                   }
+
+                                   __typename
+                                   ... on Post {
+                                          title
+                                          author
+                                          created_at
+                                          comments {
+                                                 id
+                                                 content
+                                                 likes {
+                                                        id
+                                                 }
+                                          }
+                                   }
+                            }
                      }
               }
 
-E pronto! Agora você já consegue criar um CRUD completo e se utilizar os conhecimentos de todas as etapas, pode torná-lo muito mais complexo que isso, validando as entradas do usuário, personalizando as deleções (tente fazer uma deleção lógica!) e tratando os erros de resposta da API.
+E assim obteríamos uma busca precisa que retorna muitas informações sobre o objeto curtido e quem se preocupará em enviá-lo será o resolver like(like_id). A propriedade __typename solicitada na requisição é inserida pelo graphQL que identificará na resposta o tipo de objeto que retornou em sua busca, podendo vir "Post" ou "Comment" no caso acima. Além disso, incluimos o condicional para que, quando a requisição retornar um tipo Post ela possa trazer, além das informações em comum, as informações específicas de um type Post.
+
+É claro que estes exemplos ainda estão bem vazios e que um comentário, muito provavelmente, não será constituído apenas por um conteúdo, mas também apresentará um autor e uma data de criação, assim como o post. Mas se uma estrutura de código se repete no código e, provavelmente, continuará se repetindo conforme as relações forem sendo construídas e relacionadas, será necessário construir uma abstração do código que signifique uma informação coerente e melhore a legibilidade e organização.
+
+## Então, utilize fragments!
+
+Fragments são construções que permitem que você evite repetição de código tanto na hora de construir as queries quanto na hora de buscá-las, tornando seu código mais conciso e legível.
+
+ - No caso citado acima, para ler uma estrutura de posts coerente (id, título, conteúdo e autor) podemos utilizar um "atalho", o fragment, evitando a repetição do código na busca:
+
+              fragment defaultPostStructure on Post {
+                     id
+                     title
+                     content
+                     author
+              }
+              
+ - E no momento de realização da busca, podemos escrever o json da requisição da seguinte maneira:
+ 
+              {
+                     post(id: "id_do_post") {
+                            ... defaultPostStructure
+                            created_at
+                            likes {
+                                   id
+                            }
+                            comments {
+                                   id
+                                   content
+                                   likes {
+                                          id
+                                   }
+                            }
+                     }
+              }
+
+É importante lembrá-lo que este exemplo ainda é pouco abrangente, mas a medida que sua aplicação for tornando-se maior e mais robusta, as queries começarão a ficar mais trabalhosas e confusas. Além disso, pode ser que em dado momento você precise escrever a busca de alguns posts em uma mesma query, como no exemplo a seguir:
+
+ - Em uma requisição json, você precisa buscar pelos posts de id = 1 e id = 2 e pensaria em algo como:
+
+              {
+                     post(id: "1") {
+                            ... defaultPostStructure
+                     }
+                     post(id: "1") {
+                            ... defaultPostStructure
+                     }
+              }
+
+O que na verdade seria encarado como um erro pelo servidor, já que a requisição exige um mesmo campo com diferentes argumentos. A solução para problemas desse tipo seria dar "apelidos" ou aliases para essas requisições.
+
+ - Uma requisição json com aliases ficaria mais ou menos da seguinte forma:
+
+              {
+                     firstPost: post(id: "1") {
+                            ... defaultPostStructure
+                     }
+                     secondPost: post(id: "1") {
+                            ... defaultPostStructure
+                     }
+              }
+
+E em resposta, a API graphQL apelidará os objetos como "firstPost" e "secondPost" ao invés de trazer uma "incoerência" que seriam duas propriedades com mesmo nome.
 
 ## Próximos passos
 
-Se você chegou até aqui, sabe muito sobre o básico do GraphQL e é capaz até de construir um CRUD para seus primeiros projetos de API! Parabéns, use e abuse desse conhecimento, inclusive com muito da [documentação do graphQL](https://graphql.org/graphql-js) e divirta-se!
+Bom, tendo em vista que o assunto principal do nosso "season finale" de tutorial foi completamente focado em discussões mais avançadas sobre a API GraphQL, seria interessante que seus próximos passos sejam o estudo da API em si, aprendendo a conectá-la com um banco de dados, tratar seus erros e formatar os objetos para que a requisição contenha todos os campos e relações que possam ser solicitados.
+Para isso existem muitos caminhos a serem buscados, muitos frameworks e ORM's a serem explorados e uma infinidade de fatores a ser levados em consideração. Mas sinta-se iluminado, pois você já possui muitas ferramentas para se tornar um grande mestre em API's GraphQL no futuro, jovem Padawan!
+Se quiser ver um pouco mais sobre API's NodeJS e como efetuar a conexão com um banco de dados, não deixe de conferir a nova saga de construção de API que o Ítalo iniciou [nessa publicação!](https://ezdevs.com.br/introducao-a-orm-no-node-js-com-sequelize/)
+Por fim, queria agradecer a atenção nessa jornada para desvendar um pouco sobre o poderoso graphQL! Não deixe de acompanhar os conteúdos da ez.devs no blog e [no canal do Youtube](https://www.youtube.com/watch?v=QJLEuIpbWd0)!
 
-### O que falta agora?
-
-Bom, nossa API cria uma variável e vai salvando valores dentro dela, isso lhe parece algo razoável? Claro que não! Então, em nosso próximo passo, faremos nossa API se tornar um pouco mais robusta e conectar-se a um banco de dados para salvar esses dados, além disso, não seria ótimo se as pessoas pudessem comentar e curtir os posts do nosso blog? Como podemos tornar isso simples com GraphQL?
-
-Portanto, continue sendo um leitor assíduo desse tutorial de API que está se desenvolvendo e tem potencial para ser a próxima API do seu projeto! Além disso, deixe suas dúvidas e sugestões nos comentários, adoramos interagir com vocês!
+Até a próxima jornada =D
