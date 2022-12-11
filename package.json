@@ -6,7 +6,7 @@
   "author": "Guilherme Ponsoni Ferreira <guilherme.ferreira@ezdevs.com.br>",
   "license": "MIT",
   "dependencies": {
-    "express": "^4.17.1",
+    "express": "^4.17.3",
     "express-graphql": "^0.9.0",
     "graphql": "^14.5.8"
   },
